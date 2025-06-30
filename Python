@@ -1,79 +1,25 @@
-import csv
-import os
-from datetime import datetime
+from colorama import Fore, Style, init
+init(autoreset=True)
 
-INVENTORY_FILE = 'bakery_inventory.csv'
-TIMESTAMP_FILE = 'last_updated.txt'
+# Inside your menu:
+print(Fore.CYAN + "\n====== 🧁 Bakery Inventory Tracker ======" + Style.RESET_ALL)
+print(Fore.YELLOW + "1️⃣ View Inventory")
+print("2️⃣ Add Stock")
+print("3️⃣ Record Sale")
+print("4️⃣ Add New Item")
+print("5️⃣ Save & Exit")
 
-def load_inventory():
-    inventory = {}
-    if os.path.exists(INVENTORY_FILE):
-        with open(INVENTORY_FILE, mode='r') as file:
-            reader = csv.reader(file)
-            for row in reader:
-                item, quantity = row
-                inventory[item] = int(quantity)
-    return inventory
-
-def save_inventory(inventory):
-    with open(INVENTORY_FILE, mode='w', newline='') as file:
-        writer = csv.writer(file)
-        for item, quantity in inventory.items():
-            writer.writerow([item, quantity])
-    with open(TIMESTAMP_FILE, mode='w') as f:
-        f.write(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-
-def display_inventory(inventory):
-    print("\n📦 Current Bakery Inventory:")
-    if not inventory:
-        print("  (Empty — time to bake!)")
-    for item, quantity in inventory.items():
-        print(f"  - {item}: {quantity}")
-    show_last_updated()
-
-def show_last_updated():
-    if os.path.exists(TIMESTAMP_FILE):
-        with open(TIMESTAMP_FILE, 'r') as f:
-            timestamp = f.read()
-            print(f"\n🕒 Last updated: {timestamp}")
-
-def add_stock(inventory):
-    item = input("🍞 Enter new item name: ").strip().title()
-    quantity = int(input("➕ Enter quantity to add: "))
-    inventory[item] = inventory.get(item, 0) + quantity
-    print(f"✅ Added {quantity} to {item}.")
-
-def record_sale(inventory):
-    item = input("💸 Enter item sold: ").strip().title()
+# In a new function:
+def add_new_item(inventory):
+    item = input(Fore.MAGENTA + "🆕 Enter new item name: ").strip().title()
     if item in inventory:
-        quantity = int(input("➖ Enter quantity sold: "))
-        inventory[item] = max(0, inventory[item] - quantity)
-        print(f"✅ Recorded sale of {quantity} {item}(s).")
-    else:
-        print("⚠️ Item not found in inventory.")
-
-def main():
-    inventory = load_inventory()
-    while True:
-        print("\n====== 🧁 Bakery Inventory Tracker ======")
-        print("1️⃣ View Inventory")
-        print("2️⃣ Add Stock")
-        print("3️⃣ Record Sale")
-        print("4️⃣ Save & Exit")
-        choice = input("Select an option (1-4): ").strip()
-
-        if choice == '1':
-            display_inventory(inventory)
-        elif choice == '2':
-            add_stock(inventory)
-        elif choice == '3':
-            record_sale(inventory)
-        elif choice == '4':
-            save_inventory(inventory)
-            print("💾 Inventory saved. See you next time!")
-            break
-        else:
-            print("❌ Invalid option. Please choose 1–4.")
-
-if __name__ == "__main__":
-    main()
+        print(Fore.RED + "⚠️ That item already exists in inventory.")
+        return
+    try:
+        quantity = int(input(Fore.MAGENTA + "🔢 Enter starting quantity: "))
+        description = input(Fore.MAGENTA + "📝 Enter item description: ").strip()
+        price = float(input(Fore.MAGENTA + "💰 Enter price per item: $"))
+        inventory[item] = {'quantity': quantity, 'description': description, 'price': price}
+        print(Fore.GREEN + f"✅ {item} added successfully!")
+    except ValueError:
+        print(Fore.RED + "❌ Invalid input. Please enter numbers for quantity and price.")
